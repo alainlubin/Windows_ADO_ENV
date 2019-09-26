@@ -73,7 +73,7 @@ stages:
             displayName: 'Package Upload'
             inputs:
               habitatOrigin: bldr
-              habitatPackagePath: '$(Pipeline.Workspace)/hart/results/alain-nop-commerce-$(Build.BuildNumber)-x86_64-windows.hart'
+              habitatPackagePath: '$(Pipeline.Workspace)/hart/alain-nop-commerce-$(Build.BuildNumber)-x86_64-windows.hart'
               habitatPackageChannel: dev
 
 - stage: DeployToStg
