@@ -63,6 +63,12 @@ stages:
               habitatOrigin: bldr
           - script: 'C:\ProgramData\habitat\hab.exe license accept'
             displayName: 'Accept Hab license'
+
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: 'ls  $(Pipeline.Workspace)'
+
           - task: vsts-habitat-pkg-upload@3
             displayName: 'Package Upload'
             inputs:
