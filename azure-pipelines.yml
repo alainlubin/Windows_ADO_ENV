@@ -37,7 +37,7 @@ stages:
         TargetFolder: '$(build.artifactstagingdirectory)'
     - task: PublishPipelineArtifact@1
       inputs:
-        targetPath: '$(Pipeline.Workspace)'
+        targetPath: '$(build.artifactstagingdirectory)'
         artifact: 'hart'
 
 - stage: DeployToDev
