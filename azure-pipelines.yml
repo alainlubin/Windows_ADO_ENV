@@ -67,7 +67,7 @@ stages:
           - task: PowerShell@2
             inputs:
               targetType: 'inline'
-              script: 'ls  $(Pipeline.Workspace)'
+              script: 'ls  $(Pipeline.Workspace)/hart'
 
           - task: vsts-habitat-pkg-upload@3
             displayName: 'Package Upload'
