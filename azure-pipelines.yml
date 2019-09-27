@@ -47,7 +47,7 @@ stages:
     pool:
       name: Hosted VS2017
     # creates an environment if it doesn’t exist
-    environment: 'infra-dev'
+    environment: 'infra-dev1'
     strategy:
       # default deployment strategy
       runOnce:
