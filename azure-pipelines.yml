@@ -1,0 +1,133 @@
+trigger:
+- master
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    pool:
+      name: Hosted VS2017
+    continueOnError: true
+    steps:
+    - powershell: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/habitat-sh/habitat/master/components/hab/install.ps1'))
+      displayName: 'Install Habitat'
+    - task: vsts-habitat-signing-key@3
+      displayName: 'Signing Origin Key: install'
+      inputs:
+        habitatOrigin: bldr
+    - script: 'C:\ProgramData\habitat\hab.exe license accept'
+      displayName: 'Accept Habitat License'
+    - task: vsts-habitat-build@3
+      displayName: 'Build Habitat plan'
+      inputs:
+        habitatOrigin: bldr
+    - task: vsts-habitat-expose-habitat-build-vars@3
+      displayName: 'Expose Habitat Build Variables'
+      inputs:
+        habitatSetBuildNumber: true
+    - task: CopyFiles@2
+      displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+      inputs:
+        SourceFolder: '$(Build.SourcesDirectory)/results'
+        Contents: |
+          *-$(Build.BuildNumber)-*.hart
+          last_build.env
+        TargetFolder: '$(build.artifactstagingdirectory)'
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(build.artifactstagingdirectory)'
+        artifact: 'hart'
+
+- stage: DeployToDev
+  jobs:
+    # track deployments on the environment
+  - deployment: effortless_infra_deployment
+    pool:
+      name: Hosted VS2017
+    # creates an environment if it doesn’t exist
+    environment: 'infra-dev1'
+    strategy:
+      # default deployment strategy
+      runOnce:
+        deploy:
+          steps:
+          - powershell: |
+              Set-ExecutionPolicy Bypass -Scope Process -Force
+              iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/habitat-sh/habitat/master/components/hab/install.ps1'))
+            displayName: 'Install Habitat'
+          - task: vsts-habitat-signing-key@3
+            displayName: 'Signing Origin Key: install'
+            inputs:
+              habitatOrigin: bldr
+          - script: 'C:\ProgramData\habitat\hab.exe license accept'
+            displayName: 'Accept Hab license'
+
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: 'ls  $(Pipeline.Workspace)/hart'
+
+          - task: vsts-habitat-pkg-upload@3
+            displayName: 'Package Upload'
+            inputs:
+              habitatOrigin: bldr
+              habitatPackagePath: '$(Pipeline.Workspace)/hart/alain-nop-commerce-$(Build.BuildNumber)-x86_64-windows.hart'
+              habitatPackageChannel: dev
+
+- stage: DeployToStg
+  jobs:
+    # track deployments on the environment
+  - deployment: effortless_infra_deployment
+    pool:
+      name: Hosted VS2017
+    # creates an environment if it doesn’t exist
+    environment: 'infra-stg'
+    strategy:
+      # default deployment strategy
+      runOnce:
+        deploy:
+          steps:
+          - powershell: |
+              Set-ExecutionPolicy Bypass -Scope Process -Force
+              iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/habitat-sh/habitat/master/components/hab/install.ps1'))
+            displayName: 'Install Habitat'
+          - task: vsts-habitat-signing-key@3
+            displayName: 'Signing Origin Key: install'
+            inputs:
+              habitatOrigin: bldr
+          - script: 'C:\ProgramData\habitat\hab.exe license accept'
+            displayName: 'Accept Hab license'
+          - powershell: |
+              $ver = "$(Build.BuildNumber)".replace("-","/")
+              C:\ProgramData\habitat\hab.exe pkg promote alain/nop-commerce/$ver stage
+            displayName: 'Promote to Stage'
+
+- stage: DeployToProd
+  jobs:
+    # track deployments on the environment
+  - deployment: effortless_infra_deployment
+    pool:
+      name: Hosted VS2017
+    # creates an environment if it doesn’t exist
+    environment: 'infra-prod'
+    strategy:
+      # default deployment strategy
+      runOnce:
+        deploy:
+          steps:
+          - powershell: |
+              Set-ExecutionPolicy Bypass -Scope Process -Force
+              iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/habitat-sh/habitat/master/components/hab/install.ps1'))
+            displayName: 'Install Habitat'
+          - task: vsts-habitat-signing-key@3
+            displayName: 'Signing Origin Key: install'
+            inputs:
+              habitatOrigin: bldr
+          - script: 'C:\ProgramData\habitat\hab.exe license accept'
+            displayName: 'Accept Hab license'
+          - powershell: |
+              $ver = "$(Build.BuildNumber)".replace("-","/")
+              C:\ProgramData\habitat\hab.exe pkg promote alain/nop-commerce/$ver stable
+            displayName: 'Promote to Prod'
