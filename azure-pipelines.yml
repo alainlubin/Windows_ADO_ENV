@@ -43,7 +43,7 @@ stages:
 - stage: DeployToDev
   jobs:
     # track deployments on the environment
-  - deployment: effortless_infra_deployment
+  - deployment: DeployToDev
     pool:
       name: Hosted VS2017
     # creates an environment if it doesn’t exist
@@ -79,7 +79,7 @@ stages:
 - stage: DeployToStg
   jobs:
     # track deployments on the environment
-  - deployment: effortless_infra_deployment
+  - deployment: DeployToStg
     pool:
       name: Hosted VS2017
     # creates an environment if it doesn’t exist
@@ -107,7 +107,7 @@ stages:
 - stage: DeployToProd
   jobs:
     # track deployments on the environment
-  - deployment: effortless_infra_deployment
+  - deployment: DeployToProd
     pool:
       name: Hosted VS2017
     # creates an environment if it doesn’t exist
