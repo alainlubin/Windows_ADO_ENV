@@ -1,6 +1,6 @@
 $pkg_name="nop-commerce"
 $pkg_origin="alain"
-$pkg_version="0.1.5"
+$pkg_version="0.1.6"
 $pkg_maintainer="Alain Lubin alubin@chef.io"
 $pkg_license=@("MIT")
 $pkg_upsteam_url="https://github.com/devopslifter/nopCommerce"
