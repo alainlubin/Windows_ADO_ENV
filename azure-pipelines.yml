@@ -129,5 +129,5 @@ stages:
             displayName: 'Accept Hab license'
           - powershell: |
               $ver = "$(Build.BuildNumber)".replace("-","/")
-              C:\ProgramData\habitat\hab.exe pkg promote alain/nop-commerce/$ver stable
+              C:\ProgramData\habitat\hab.exe pkg promote alain/nop-commerce/$ver Prod
             displayName: 'Promote to Prod'
